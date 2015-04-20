@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=320, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+var resultList = '';
+var resultPics = [];
+
+var userInp = "food";
+
+function changeCategory(cat) {
+	userInp = cat;
+	initialize();
+
+}
+
+
+function getDetail(id) {
+	console.log(resultList[id]);
+	$("#infoHolder").empty();
+	$("<p>" + resultList[id].title + "</p>").appendTo("#infoHolder");
+	$("<h2>" + resultList[id].title + "</h2>").appendTo("#page2Header");
+
+	$("<img src='" + resultPics[id] + "'/>").appendTo("#infoHolder");
+
+}
+
+google.load("feeds", "1");
+function initialize() {
+	resultPics = [];
+    var feed = new google.feeds.Feed('http://www.rendip.com/c/' + userInp + '/rss');
+    feed.setResultFormat(google.feeds.Feed.MIXED_FORMAT);
+    feed.setNumEntries(5);
+    feed.load(function(result) {
+    $( "#listHolder" ).empty();
+
+    if (!result.error) {
+      for (var i = 0; i < result.feed.entries.length; i++) {
+        var entry = result.feed.entries[i];
+        var mediaEntries = entry.xmlNode.getElementsByTagNameNS('*','thumbnail');
+        for (var j = 0; j < mediaEntries.length; j++) {
+            var mediaEntry = mediaEntries[j];
+            var mediaThumbnailUrl = mediaEntry.attributes.getNamedItem('url').value
+            console.log(mediaThumbnailUrl);
+            resultPics.push(mediaThumbnailUrl);
+
+        }
+        $("<a href='#page2'><p onClick='getDetail("+ i +")'>" + entry.title + "</p></a>").appendTo("#listHolder");
+      }
+      resultList = result.feed.entries;
+      console.log(result.feed.entries);
+    }
+  });
+}
+google.setOnLoadCallback(initialize);
+
+
+
+</script> 
+</head>
+<body>
+		<div data-role="page" id="page1">
+		<div data-role="header">
+			<h1 onclick='changeCategory("food")'>Food</h1>
+			<h1 onclick='changeCategory("business")'>Business </h1>
+		</div>
+		<div data-role="main" class="ui-content">
+			<div id="listHolder"> </div>
+		</div>
+		<div data-role="footer">
+			<h2></h2>
+		</div>
+	
+	</div>
+	
+	<div data-role="page" id="page2">
+		<div data-role="header" id="page2Header">
+		</div>
+		<div data-role="main" class="ui-content">
+		<div id = "infoHolder"> </div>
+					<p>Welcome to my second page</p>
+		</div>
+		<div data-role="footer">
+			<a href ="#page1"><h2>Gå tillbaka</h2></a>
+		</div>
+	
+	</div>
+	
+	
+
+</body>
+</html>
